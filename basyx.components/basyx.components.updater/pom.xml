@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.eclipse.basyx</groupId>
+    <artifactId>basyx.components.updater.root</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Updater Root POM</name>
+    <description>Parent POM for updater</description>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>basyx.components.updater.core</module>
+        <module>basyx.components.updater.camel-aas</module>
+        <module>basyx.components.updater.camel-prometheus</module>
+        <module>basyx.components.updater.camel-timer</module>
+        <module>basyx.components.updater.transformer.camel-jsonata</module>
+    </modules>
+
+</project>
