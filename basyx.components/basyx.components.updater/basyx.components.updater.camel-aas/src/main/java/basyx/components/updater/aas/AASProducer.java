@@ -44,6 +44,16 @@ public class AASProducer extends DefaultProducer {
 
     String fixMessage(String messageBody) {
 		String fixedMessageBody = "";
+		if (messageBody.contains("\"") && messageBody != null && messageBody.isEmpty() == false) {
+			fixedMessageBody = messageBody.substring(1,messageBody.length() - 1);
+		} else {
+			fixedMessageBody = messageBody;
+		}
+		return fixedMessageBody;
+	}
+
+    String fixMessage(String messageBody) {
+		String fixedMessageBody = "";
 		if (messageBody != null) {
 			if (messageBody.startsWith("\"") && messageBody.endsWith("\"")) {
 				fixedMessageBody = messageBody.substring(1,messageBody.length() - 1);
@@ -53,7 +63,7 @@ public class AASProducer extends DefaultProducer {
 		}
 		return fixedMessageBody;
 	}
-	
+
 	/**
 	 * Connect the the Submodel Element for data dumping
 	 */
