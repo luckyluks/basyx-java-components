@@ -14,6 +14,7 @@ package basyx.components.updater.aas;
 import org.apache.camel.Exchange;
 import org.apache.camel.support.DefaultProducer;
 import org.eclipse.basyx.submodel.metamodel.connected.submodelelement.dataelement.ConnectedProperty;
+import org.eclipse.basyx.submodel.metamodel.map.submodelelement.dataelement.property.valuetype.ValueType;
 import org.eclipse.basyx.vab.modelprovider.VABElementProxy;
 import org.eclipse.basyx.vab.modelprovider.api.IModelProvider;
 import org.eclipse.basyx.vab.protocol.http.connector.HTTPConnectorFactory;
@@ -34,23 +35,28 @@ public class AASProducer extends DefaultProducer {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-    	String messageBody = exchange.getMessage().getBody(String.class);
-		String fixedMessageBody = "";
-    	fixedMessageBody = fixMessage(messageBody);
-
-		LOG.info("Got msg for property: " + fixedMessageBody);
-    	connectedProperty.setValue(fixedMessageBody);
+		ValueType propertyValueType = connectedProperty.getValueType();
+		Object messageBody = exchange.getMessage().getBody(interpretValueType(propertyValueType));
+		LOG.info("Interpreted message={} as class={}", messageBody.toString(), interpretValueType(propertyValueType));
+		if (propertyValueType.toString().equals("string")){
+			connectedProperty.setValue(fixMessage(messageBody.toString()));
+		}else{
+			connectedProperty.setValue(messageBody);
+		}
     }
 
-    String fixMessage(String messageBody) {
-		String fixedMessageBody = "";
-		if (messageBody.contains("\"") && messageBody != null && messageBody.isEmpty() == false) {
-			fixedMessageBody = messageBody.substring(1,messageBody.length() - 1);
-		} else {
-			fixedMessageBody = messageBody;
+	Class<?> interpretValueType(ValueType valueType){
+		switch (valueType.toString()) {
+			case "int":
+				return Integer.class;
+			case "float":
+				return Float.class;
+			case "byte":
+				return String.class; // if set to Byte.class, Camel throws an TypeConversionException
+			default:
+				return String.class;
 		}
-		return fixedMessageBody;
-	}
+	};
 
     String fixMessage(String messageBody) {
 		String fixedMessageBody = "";
