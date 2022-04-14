@@ -1,11 +1,11 @@
 /*******************************************************************************
 * Copyright (C) 2021 the Eclipse BaSyx Authors
-* 
+*
 * This program and the accompanying materials are made
 * available under the terms of the Eclipse Public License 2.0
 * which is available at https://www.eclipse.org/legal/epl-2.0/
 
-* 
+*
 * SPDX-License-Identifier: EPL-2.0
 ******************************************************************************/
 
@@ -15,6 +15,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.support.DefaultProducer;
 import org.eclipse.basyx.submodel.metamodel.connected.submodelelement.dataelement.ConnectedProperty;
 import org.eclipse.basyx.submodel.metamodel.map.submodelelement.dataelement.property.valuetype.ValueType;
+import org.eclipse.basyx.submodel.metamodel.map.submodelelement.dataelement.property.valuetype.ValueTypeHelper;
 import org.eclipse.basyx.vab.modelprovider.VABElementProxy;
 import org.eclipse.basyx.vab.modelprovider.api.IModelProvider;
 import org.eclipse.basyx.vab.protocol.http.connector.HTTPConnectorFactory;
@@ -35,27 +36,15 @@ public class AASProducer extends DefaultProducer {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		ValueType propertyValueType = connectedProperty.getValueType();
-		Object messageBody = exchange.getMessage().getBody(interpretValueType(propertyValueType));
-		LOG.info("Interpreted message={} as class={}", messageBody.toString(), interpretValueType(propertyValueType));
-		if (propertyValueType.toString().equals("string")){
+		// Evaluate exchange message as String
+		Object messageBody = exchange.getMessage().getBody(String.class);
+		// if valueType of Property is String, fix double quotes, else infer Object by given Type
+		if (connectedProperty.getValueType().equals(ValueType.String)) {
 			connectedProperty.setValue(fixMessage(messageBody.toString()));
-		}else{
-			connectedProperty.setValue(messageBody);
+		} else {
+			connectedProperty.setValue(ValueTypeHelper.getJavaObject(messageBody, connectedProperty.getValueType()));
 		}
-    }
-
-	Class<?> interpretValueType(ValueType valueType){
-		switch (valueType.toString()) {
-			case "int":
-				return Integer.class;
-			case "float":
-				return Float.class;
-			case "byte":
-				return String.class; // if set to Byte.class, Camel throws an TypeConversionException
-			default:
-				return String.class;
-		}
+		LOG.info("Transferred message={} with valueType={}", messageBody, connectedProperty.getValueType());
 	};
 
     String fixMessage(String messageBody) {
