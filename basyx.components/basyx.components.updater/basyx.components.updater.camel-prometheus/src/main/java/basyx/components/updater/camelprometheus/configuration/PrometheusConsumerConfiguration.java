@@ -56,6 +56,6 @@ public class PrometheusConsumerConfiguration extends HttpPollingConsumerConfigur
 		queryMap.put("rootfs-type", "node_filesystem_size_bytes{mountpoint=\"/\"}");
 		queryMap.put("rootfs-usage", "100 - ((node_filesystem_avail_bytes{mountpoint=\"/\",fstype!=\"rootfs\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/\",fstype!=\"rootfs\"})");
 		queryMap.put("docker-version", "cadvisor_version_info");
-		queryMap.put("docker-runningContainers", "irate(container_last_seen{image!=\"\"}[1m])");
+		queryMap.put("docker-runningContainers", "irate(container_network_transmit_bytes_total{image!=\"\"}[1m])");
 	}
 }
